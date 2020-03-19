@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include "Graph.h"
+#include "module1.h"
 using namespace std;
 
 int main()
@@ -9,6 +10,7 @@ int main()
     Graph G;
     cout << "Enter number of vertices ";
     cin >> n;
+    G.vertices=n;
     G.addVertices(n);
     
     cout << "Enter number of edges ";
@@ -21,7 +23,8 @@ int main()
         G.addEdge(x ,y );
     }
     G.showGraph();
-    
+    cout<<"DFS\n\n"<<endl;
+    dfs(G);
 
     return 0;
 }
