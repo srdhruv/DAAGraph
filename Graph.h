@@ -3,7 +3,7 @@
 using namespace std;
 
 struct vertex{
-    //int data;
+    int data;
     std::vector<int> edges;
 };
 class Graph
