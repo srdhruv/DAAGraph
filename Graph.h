@@ -10,6 +10,7 @@ class Graph
 {
     
     public:
+        int vertices;
         std::vector<vertex> Graph;
         void showGraph();
         void addVertices(int n);
