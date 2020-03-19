@@ -23,6 +23,7 @@ void Graph::addVertices(int n)
     for(int i = 0; i <= n; i++)
     {
         struct vertex v;
+         v.data=i;
         Graph.push_back(v);
     }
 
