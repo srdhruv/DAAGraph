@@ -18,15 +18,18 @@ class Graph{
         int vertex_count ;
         int edge_count;
         int directed ;
+        int weighted;
         void showGraph();
         void addVertex(int n);
         void addEdge(int x,int y);
+        void addEdge(int x,int y,int w);
         Graph()
         {
       //  edges[]={};
         vertex_count = 0;
         edge_count = 0;
         directed = 0;
+        weighted = 0;
         }
 };
 
@@ -84,23 +87,87 @@ void Graph::addEdge(int x,int y)
     }
 
 };
+//BElow is for a weighted graph
+void Graph::addEdge(int x,int y,int w)
+{
+    struct edgelist *temp1 = (struct edgelist *) malloc(sizeof(struct edgelist));
+    temp1->value = y;
+    temp1->weight = w;
+    InDegree[y]++;
+    OutDegree[x]++;
+    
+    if(edges[x] == NULL)//IF edgelist of vertex x is empty
+    {
+        edges[x] = temp1;
+        edges[x]->next=NULL;
+    }
+    else
+    {
+        temp1->next = edges[x];
+        edges[x] = temp1;
+    }    
+    edge_count++;
+
+    if(directed == 0)
+    {
+        struct edgelist *temp2 = (struct edgelist *) malloc(sizeof(struct edgelist *));
+        temp2->value = x;
+        temp2->weight = w;
+        InDegree[x]++;
+        OutDegree[y]++;
+        if(edges[y] == NULL)
+        {
+            edges[y] = temp2;
+              edges[y]->next=NULL;
+        }
+        else
+        {
+            temp2->next = edges[y];
+            edges[y] = temp2;
+        }
+        edge_count++;
+    }
+
+};
+
 
 void Graph::showGraph()
 {
     cout << "Graph is  " << endl;
-    for(int i = 1; i <= vertex_count; i++)
+    if(weighted == 1)
     {
-        cout << i << " -> ";
-        struct edgelist *current;
-        current = edges[i];
-
-        while(current != NULL)
+        for(int i = 1; i <= vertex_count; i++)
         {
-            cout << current->value << " ";
-            current = current->next;
+            
+            struct edgelist *current;
+            current = edges[i];
+
+            while(current != NULL)
+            {
+                cout << i << " -> ";
+                cout << current->value << " === " << current->weight << endl;
+                current = current->next;
+            }
+            cout << endl;
         }
-        cout << endl;
     }
+    else
+    {
+       for(int i = 1; i <= vertex_count; i++)
+        {
+            cout << i << " -> ";
+            struct edgelist *current;
+            current = edges[i];
+
+            while(current != NULL)
+            {
+                cout << current->value << " ";
+                current = current->next;
+            }
+            cout << endl;
+        }
+    }
+    
 }
 
 void dfs(Graph G)
