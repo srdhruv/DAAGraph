@@ -1,60 +1,206 @@
+
+#include <cstdlib>
 #include <iostream>
-#include <vector>
+#include<stack>
 using namespace std;
-
-struct vertex{
-    int data;
-    std::vector<int> edges;
+//#define max 1001;
+struct edgelist{
+    int value;
+    int weight;
+    struct edgelist *next;
 };
-class Graph
-{
-    
+
+class Graph{
     public:
-        int vertices;
-        std::vector<vertex> Graph;
+        edgelist *edges[1000];
+        int InDegree[1000];
+        int OutDegree[1000];
+        int vertex_count ;
+        int edge_count;
+        int directed ;
+        int weighted;
         void showGraph();
-        void addVertices(int n);
-        void addEdge(int u,int v);
-        
-
+        void addVertex(int n);
+        void addEdge(int x,int y);
+        void addEdge(int x,int y,int w);
+        Graph()
+        {
+      //  edges[]={};
+        vertex_count = 0;
+        edge_count = 0;
+        directed = 0;
+        weighted = 0;
+        }
 };
-void Graph::addVertices(int n)
+
+//n is number of new vertices
+void Graph::addVertex(int n)
 {
-    for(int i = 0; i <= n; i++)
+    for(int i = vertex_count + 1; i <= vertex_count + n; i++)
     {
-        struct vertex v;
-         v.data=i;
-        Graph.push_back(v);
+        
+        InDegree[i] = 0;
+        OutDegree[i] = 0;
+    
+        edges[i] = NULL;
+    }
+    vertex_count += n;
+};
+
+
+void Graph::addEdge(int x,int y)
+{
+    struct edgelist *temp1 = (struct edgelist *) malloc(sizeof(struct edgelist));
+    temp1->value = y;
+    InDegree[y]++;
+    OutDegree[x]++;
+    
+    if(edges[x] == NULL)//IF edgelist of vertex x is empty
+    {
+        edges[x] = temp1;
+        edges[x]->next=NULL;
+    }
+    else
+    {
+        temp1->next = edges[x];
+        edges[x] = temp1;
+    }    
+    edge_count++;
+
+    if(directed == 0)
+    {
+        struct edgelist *temp2 = (struct edgelist *) malloc(sizeof(struct edgelist *));
+        temp2->value = x;
+        InDegree[x]++;
+        OutDegree[y]++;
+        if(edges[y] == NULL)
+        {
+            edges[y] = temp2;
+              edges[y]->next=NULL;
+        }
+        else
+        {
+            temp2->next = edges[y];
+            edges[y] = temp2;
+        }
+        edge_count++;
     }
 
-}
-void Graph::addEdge(int u,int v)
+};
+//BElow is for a weighted graph
+void Graph::addEdge(int x,int y,int w)
 {
-    Graph[u].edges.push_back(v);
-    Graph[v].edges.push_back(u);
-}
+    struct edgelist *temp1 = (struct edgelist *) malloc(sizeof(struct edgelist));
+    temp1->value = y;
+    temp1->weight = w;
+    InDegree[y]++;
+    OutDegree[x]++;
+    
+    if(edges[x] == NULL)//IF edgelist of vertex x is empty
+    {
+        edges[x] = temp1;
+        edges[x]->next=NULL;
+    }
+    else
+    {
+        temp1->next = edges[x];
+        edges[x] = temp1;
+    }    
+    edge_count++;
+
+    if(directed == 0)
+    {
+        struct edgelist *temp2 = (struct edgelist *) malloc(sizeof(struct edgelist *));
+        temp2->value = x;
+        temp2->weight = w;
+        InDegree[x]++;
+        OutDegree[y]++;
+        if(edges[y] == NULL)
+        {
+            edges[y] = temp2;
+              edges[y]->next=NULL;
+        }
+        else
+        {
+            temp2->next = edges[y];
+            edges[y] = temp2;
+        }
+        edge_count++;
+    }
+
+};
+
+
 void Graph::showGraph()
 {
-    int i = 0;
-    for(auto u:Graph)
+    cout << "Graph is  " << endl;
+    if(weighted == 1)
     {
-        if(i != 0)
+        for(int i = 1; i <= vertex_count; i++)
         {
-            cout << i << " -> " ;
-            for(auto x: u.edges)
+            
+            struct edgelist *current;
+            current = edges[i];
+
+            while(current != NULL)
             {
-                cout << x << " ";
+                cout << i << " -> ";
+                cout << current->value << " === " << current->weight << endl;
+                current = current->next;
             }
             cout << endl;
         }
-        i++;
     }
+    else
+    {
+       for(int i = 1; i <= vertex_count; i++)
+        {
+            cout << i << " -> ";
+            struct edgelist *current;
+            current = edges[i];
+
+            while(current != NULL)
+            {
+                cout << current->value << " ";
+                current = current->next;
+            }
+            cout << endl;
+        }
+    }
+    
 }
-/*
-void bfs(Graph G);
-void bfs(Graph G,int start);
-void bfs(Graph G,int start,int end);
-void dfs(Graph G);
-void dfs(Graph G,int start);
-void dfs(Graph G,int start,int end);
-*/
+
+void dfs(Graph G)
+{
+    int visit[G.vertex_count+1]={0};
+    stack<int> stack;
+    for(int i=1;i<=G.vertex_count;i++)
+    {
+        if(visit[i]!=1)
+        {
+            stack.push(i);
+            while(!stack.empty())
+            {
+                int s=stack.top();
+                stack.pop();
+                    if(visit[s]==0)
+                    {
+                        cout<<" "<<s<<" ";
+                        visit[s]=1;
+                    }    
+                
+                
+                    struct edgelist *temp=G.edges[s];
+                    while(temp!=NULL)
+                    {
+                        int k=temp->value;
+                    if(visit[k]==0)
+                    stack.push(k);
+                    temp=temp->next;
+                    }   
+            }
+
+        }
+    }
+    
+}
