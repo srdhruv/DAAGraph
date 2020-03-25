@@ -1,5 +1,6 @@
 //only for undirectedgraph i guess
 #include<list>
+#include "Graph.h"
 void bfs(Graph G)
 {
     int visit[G.vertex_count+1]={0};
