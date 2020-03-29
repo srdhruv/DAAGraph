@@ -1,13 +1,80 @@
-/*
-MST_Prim(Graph G)
-MST_Kruskal(Graph G)
-MST_youralgo(Graph G)
-*/
-#include "Graph.h"
-#include <iostream>
-#define infi 2147483647
-using namespace std;
 
+#include <iostream>
+#include "Graph.h"
+#define infi 	2147483647
+using namespace std;
+struct k_Edge
+{
+    int u;
+    int v;
+    int weight;
+};
+int root(int arr[],int x);
+int find(int arr[],int x,int y);
+void union_set(int arr[],int x,int y);
+void kedge_sort(struct k_Edge arr[],int start,int end);
+void kedge_swap(struct k_Edge *x,struct k_Edge *y);
+
+//Main functions
+void mst_Prim(Graph G);
+void mst_kruskal(Graph G);
+
+
+
+
+void mst_kruskal(Graph G)
+{
+    struct k_Edge edges[G.edge_count];
+    int k = 0;
+    for(int i = 1;i <= G.vertex_count;i++)
+    {
+        struct edgelist *temp = G.edges[i];
+        while(temp != NULL)
+        {
+            edges[k].u = i;
+            edges[k].v = temp->value;
+            edges[k].weight = temp->weight;
+            k++;
+            temp = temp->next;
+        }
+    }
+    kedge_sort(edges,0,k - 1);
+  
+    Graph MST;
+    MST.weighted = 1;
+    MST.addVertex(G.vertex_count);
+    
+    int disjoint[G.vertex_count + 1];
+    for(int i = 1; i <= G.vertex_count; i++)
+        disjoint[i] = i;
+    printf("MST of Given graph by krushkal's algorithm is\nu -> v  == weight\n");
+    int count_krushkal = 0;
+    int sum_krushkal = 0;
+    for(int i = 0; i < G.edge_count; i++)
+    {
+        if(count_krushkal == G.vertex_count - 1)
+            break;
+        if(find(disjoint,edges[i].u,edges[i].v))
+        {
+            continue;
+        }
+        else
+        {
+            union_set(disjoint,edges[i].u,edges[i].v);
+            MST.addEdge(edges[i].u,edges[i].v,edges[i].weight);
+            printf("%d -> %d  == %d\n",edges[i].u,edges[i].v,edges[i].weight);
+            sum_krushkal += edges[i].weight;
+            count_krushkal++;
+        }
+    }
+    printf("Total weight = %d\n",sum_krushkal);
+    
+    
+
+
+}
+
+//Enter a undirected weighted graph G
 void mst_Prim(Graph G)
 {
     int n = G.vertex_count;
@@ -69,4 +136,70 @@ void mst_Prim(Graph G)
     }
     cout << "Total distance = " << sum << endl;
 
+}
+
+void kedge_swap(struct k_Edge *x,struct k_Edge *y)
+{
+    struct k_Edge temp;
+    temp.u = x->u;
+    temp.v = x->v;
+    temp.weight = x->weight;
+    x->u = y->u;
+    x->v = y->v;
+    x->weight = y->weight;
+    y->u = temp.u;
+    y->v = temp.v;
+    y->weight = temp.weight;
+}
+
+//Sort edges for k_edges in krushkal
+void kedge_sort(struct k_Edge arr[],int start,int end)
+{
+    if(start < end)
+    {
+        
+        int p_weight = arr[end].weight;
+        int b = start;
+        for(int i = start; i < end ;i++)
+        {
+            if(arr[i].weight < p_weight)
+            {
+                kedge_swap(&arr[i],&arr[b]);
+                b++;
+            }
+        }
+        kedge_swap(&arr[end],&arr[b]);
+        kedge_sort(arr,start,b-1);
+        kedge_sort(arr,b + 1,end);
+    }
+}
+
+
+
+//return root of x
+int root(int arr[],int x)
+{
+    while(arr[x] != x)
+    {
+        arr[x] = arr[arr[x]];
+        x = arr[x];
+    }
+    return x;
+}
+//joins both set
+void union_set(int arr[],int x,int y)
+{
+    int root_x = root(arr,x);
+    int root_y = root(arr,y);
+    arr[root_x] = root_y;
+}
+
+//Return 1 when both have same root
+int find(int arr[],int x, int y)
+{
+    int root_x = root(arr,x);
+    int root_y = root(arr,y);
+    if(root_x == root_y)
+        return 1;
+    return 0;
 }
