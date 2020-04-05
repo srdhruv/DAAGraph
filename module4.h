@@ -1,5 +1,7 @@
-//Biparite .. disconnected seems working , check for variety cases
+//bipartate disconnected is hopefully correct
+//all 3 are implemented for nondirected only currently..
 #include<list>
+#include<vector>
 void Test_Bipartite(Graph G)
 {
     int visit[G.vertex_count+1]={0};
@@ -223,3 +225,148 @@ cout<<" "<<artic[l];
     
     
  }
+
+
+
+ void Test_bridge(Graph G)
+{
+int visit[G.vertex_count+1]={0};
+int noofparts=0;
+list<int> queue;
+int flag;
+for(int l=1;l<=G.vertex_count;l++)
+    {
+    if(visit[l]==0)
+    flag=1;
+    else
+    flag=0;
+    
+    if(flag==1)
+    {
+    noofparts++;          
+    visit[l]=1;
+    queue.push_back(l);
+      while (!queue.empty())
+    {
+        int s=queue.front();
+          queue.pop_front();
+        
+                    struct edgelist *temp=G.edges[s];
+                    while(temp!=NULL)
+                    {
+                    int k=temp->value;
+                    if(visit[k]==0)
+                    {
+                    visit[k]=1;    
+                    queue.push_back(k);
+                    }
+                    temp=temp->next;
+                    }
+
+
+    }
+    }
+    }
+vector<int> edgesfrom;
+vector<int> edgesto;
+int edgecount=0;
+for(int i = 1; i <= G.vertex_count; i++)
+    {
+        
+        struct edgelist *current;
+        current = G.edges[i];
+
+        while(current != NULL)
+        {
+            edgesfrom.push_back(i);
+            edgesto.push_back(current->value);
+            edgecount++;
+
+            current = current->next;
+        }
+    
+    }
+
+/*for(int i=0;i<edgecount;i++)
+cout<<endl<<edgesfrom[i]<<" "<<edgesto[i];
+}
+*/
+
+
+int arraygraph[G.vertex_count+1][G.vertex_count+1]={0};
+    for(int i = 1; i <= G.vertex_count; i++)
+    {
+    
+        struct edgelist *current;
+        current = G.edges[i];
+        while(current != NULL)
+        {
+            arraygraph[current->value][i]=arraygraph[i][current->value]=1;
+            current=current->next; 
+            
+            
+        }
+        }
+int bridge[G.vertex_count*G.vertex_count][2];
+int b=0;
+for(int i=0;i<=edgecount;i++)
+{
+int tempgraph[G.vertex_count+1][G.vertex_count+1];
+for(int j=0;j<=G.vertex_count;j++)
+for(int k=0;k<=G.vertex_count;k++)
+tempgraph[j][k]=arraygraph[j][k];
+
+tempgraph[edgesfrom[i]][edgesto[i]]=tempgraph[edgesto[i]][edgesfrom[i]]=0;
+    
+int visitnow[G.vertex_count+1]={0};
+int noofpartsnow=0;
+list<int> queuenow;
+//int flag;
+for(int l=1;l<=G.vertex_count;l++)
+    {
+    if(visitnow[l]==0)
+    flag=1;
+    else
+    flag=0;
+    
+    if(flag==1)
+    {
+    noofpartsnow++;          
+    visitnow[l]=1;
+    queuenow.push_back(l);
+      while (!queuenow.empty())
+    {
+        int s=queuenow.front();
+          queuenow.pop_front();
+        
+                    for(int j=1;j<=G.vertex_count;j++)
+                    {
+                        if(tempgraph[s][j]==1)
+                        {
+                        if(visitnow[j]==0)
+                        {
+                        visitnow[j]=1;    
+                        queuenow.push_back(j);
+                        }
+                        }
+                    }
+    }
+    }
+    }
+   //cout<<endl<<" "<<i<<" "<<noofpartsnow;
+    if(noofpartsnow>(noofparts))
+    {
+        bridge[b][0]=edgesfrom[i];
+        bridge[b][1]=edgesto[i];
+        b++;
+    }
+}              
+
+cout<<endl<<"No of bridges "<<b/2<<endl<< "and are (showing both directions): "<<endl;
+for(int i=0;i<b;i++)
+cout<<bridge[i][0]<<"->"<<bridge[i][1]<<endl;
+
+
+
+
+}
