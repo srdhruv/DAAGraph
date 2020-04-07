@@ -108,6 +108,135 @@ Graph BFS_SPATH(Graph G,int s,int flag)
   
     return SPATH;
 }
+pair<int,int> bfsLpath(Graph G,int s)
+{
+    int dist[G.vertex_count + 1];
+    for(int i = 1; i <= G.vertex_count; i++)
+        dist[i] = 0;
+    queue<int> Q;
+    Q.push(s);
+    int maxDis = -1;
+    int node = s;
+    dist[s] = 0;
+    while(!Q.empty())
+    {
+        int u =  Q.front();
+        Q.pop();
+        edgelist *temp = G.edges[u];
+        while(temp != NULL)
+        {
+            int v = temp->value;
+            if(dist[v] == 0)
+            {
+                Q.push(v);
+                dist[v] = dist[u] + 1;
+                if(dist[v] > maxDis)
+                {
+                    maxDis = dist[v];
+                    node = v;
+                }
+            }
+            temp = temp->next;
+        }
+
+    }
+    return make_pair(node,maxDis);
+}
+
+int dfs_top(Graph G,int i,int s,int visited[],int top[])
+{
+    visited[s] = 1;
+    edgelist *temp = G.edges[s];
+    while(temp != NULL)
+    {
+        if(visited[temp->value] == 0)
+        {
+            i = dfs_top(G,i,temp->value,visited,top);
+        }
+        temp = temp->next;
+    }
+    top[i] = s;
+    return i - 1;
+}
+void topsort(Graph G,int top[])
+{
+        int visited[G.vertex_count + 1];
+        for(int i = 1; i <= G.vertex_count; i++)    
+            visited[i] = 0;
+        int i = G.vertex_count - 1;
+        for(int j = 1; j <= G.vertex_count; j++)
+        {
+            if(visited[j] == 0)
+                i = dfs_top(G,i,j,visited,top);
+        }
+}
+
+
+//Enter flag 0 tree flag 1 enter DAG 
+void Lpath(Graph G,int flag)
+{   //Longest path in tree
+    if(flag == 0)
+    {
+        pair<int,int> u,v;
+        u = bfsLpath(G,1);
+        v = bfsLpath(G,u.first);
+        cout << "Longest path is between " << u.first << " and " << v.first << " and distance is " << v.second << "\n";
+    }
+    else
+    {
+        //FOR DAG
+        //First topsort it
+        //Then multiplying edges by -1
+        //Find shortest path on DAG using topsort array
+        int topsorted[G.vertex_count];
+        
+        topsort(G,topsorted);
+        //for(int i = 0; i < G.vertex_count; i++)
+        //    cout << topsorted[i] << " ";
+        int parent[G.vertex_count + 1];
+        int dist[G.vertex_count + 1];
+        for(int j = 1; j <= G.vertex_count; j++)
+        {
+            parent[j] = j;
+            dist[j] = INT32_MAX;
+        }     
+        dist[topsorted[0]] = 0;
+        int min_dist = INT32_MAX, node = topsorted[0];
+        for(int i = 0; i < G.vertex_count; i++)
+        {
+           int u = topsorted[i];
+           edgelist *temp = G.edges[u];
+           while(temp != NULL)
+           {
+               if(dist[temp->value] > (dist[u] - temp->weight))
+               {
+                //   cout << u << " - " << temp->value << " ori dis " << dist[temp->value]<< " new " << dist[u] << " - " << temp->weight <<endl ;
+                   dist[temp->value] = dist[u] -temp->weight;
+                   parent[temp->value] = u;
+                   if(dist[temp->value] < min_dist)
+                   {
+                       min_dist = dist[temp->value];
+                       node = temp->value;
+                   }
+               }
+               temp = temp->next;
+           }
+        }
+       // cout << endl;
+       // for(int i = 1; i <= G.vertex_count; i++)
+       //     cout << dist[i] << " ";
+        cout << "MAX DISTANCE IS " << 0 - min_dist  << " and Longest path is " << node ;
+        while(parent[node] != node)
+        {
+            cout << " <--- ";
+            node = parent[node];
+            cout << node ;
+        }
+
+    }
+    
+}
+
 int main()
 {
     Graph G;
@@ -128,12 +257,10 @@ int main()
     for(int i = 1; i <= z; i++)
     {
         cout << "Enter edge " << i << ": ";
-        cin >> x >> y >> w;
+        cin >> x >> y >> w ;
         G.addEdge(x,y,w);
     }
-    G.showGraph();
-    cout << endl;
-    BFS_SPATH(G,1,1);
+    Lpath(G,1);
 
     return 0;
 }
@@ -173,4 +300,39 @@ int main()
 1 2 5
 1 3 1
 2 3 2
+
+
+
+0
+10
+9
+1 2
+2 3
+3 4
+3 10
+3 5
+5 6
+2 7
+7 8
+7 9
+
+
+lpath 1
+1
+8
+13
+1 2 3
+1 3 6
+2 3 4
+2 4 4
+2 5 11
+3 4 8
+3 7 11
+4 5 -4
+4 6 5
+4 7 2
+5 8 9
+6 8 1
+7 8 2
+
 */
