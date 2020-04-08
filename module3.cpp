@@ -205,6 +205,8 @@ void Lpath(Graph G,int flag)
         for(int i = 0; i < G.vertex_count; i++)
         {
            int u = topsorted[i];
+           if(dist[u] == INT32_MAX)
+            dist[u] = 0;
            edgelist *temp = G.edges[u];
            while(temp != NULL)
            {
@@ -237,6 +239,64 @@ void Lpath(Graph G,int flag)
     
 }
 
+
+void MAX_Weight_MST(Graph G)
+{
+    int n = G.vertex_count;
+    int added[n+1],distance[n+1],parent[n+1];
+    int u = 1,v;
+    int maxDistance;
+    struct edgelist *temp;
+    
+    for(int i = 1; i <= n; i++)
+    {
+        added[i] = 0;
+        distance[i] = INT32_MIN;  
+        parent[i] = i;
+    }
+    u = 1;
+    distance[u] = 0;
+    parent[u] = 1;
+
+    while(added[u] == 0)
+    {
+        added[u] = 1;
+        temp = G.edges[u];
+        while(temp != NULL)
+        {
+            v = temp->value;
+            if(added[v] == 0 && temp->weight > distance[v])
+            {
+                distance[v] = temp->weight;
+                parent[v] = u;
+            }
+            temp = temp->next;
+        }
+
+        v = 1;
+        //For selecting nearest available node
+        maxDistance = INT32_MIN;
+        for(int i = 1; i <= n; i++)
+        {
+            if(added[i] == 0 && maxDistance < distance[i])
+            {
+                v = i;
+                maxDistance = distance[i];
+            }
+        }
+        
+        u = v;
+    }
+    int sum = 0;
+    cout << "Max distance spanning tree is :\n";
+    for(int i = 1; i <= n; i++)
+    {
+        cout << i << " - " << parent[i] << " = " << distance[i] << endl;
+        sum += distance[i];
+    }
+    cout << "Total distance = " << sum << endl;
+}
+
 int main()
 {
     Graph G;
@@ -260,7 +320,7 @@ int main()
         cin >> x >> y >> w ;
         G.addEdge(x,y,w);
     }
-    Lpath(G,1);
+    MAX_Weight_MST(G);
 
     return 0;
 }
